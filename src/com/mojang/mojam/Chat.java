@@ -7,8 +7,11 @@ import java.util.ArrayList;
 import com.mojang.mojam.gui.Font;
 import com.mojang.mojam.screen.Screen;
 
+/**
+ * Chat functionality for multiplayer mode
+ */
 public class Chat implements KeyListener {
-
+	/** Constants */
 	private static final int MAX_MESSAGES = 10;
 	private static final int MAX_MESSAGE_LENGTH = 35;
 	private static final int TICKS_PER_MESSAGE = 60 * 4;
@@ -20,18 +23,34 @@ public class Chat implements KeyListener {
 	private String currentMessage = "";
 	private String waitingMessage = null;
 
+	/**
+	 * Clear all messages
+	 */
 	public void clear() {
 		messages.clear();
 	}
 
+	/**
+	 * Check if the chat is open
+	 * 
+	 * @return True if open, false if not
+	 */
 	public boolean isOpen() {
 		return open;
 	}
 
+	/**
+	 * Open the chat
+	 */
 	public void open() {
 		open = true;
 	}
 
+	/**
+	 * Add a message
+	 * 
+	 * @param message Message
+	 */
 	public void addMessage(String message) {
 		if (messages.size() == MAX_MESSAGES) {
 			messages.remove(MAX_MESSAGES - 1);
@@ -42,12 +61,20 @@ public class Chat implements KeyListener {
 		}
 	}
 
+	/**
+	 * Retrieve a waiting message
+	 * 
+	 * @return Message on success, null if no message available
+	 */
 	public String getWaitingMessage() {
 		String msg = waitingMessage;
 		waitingMessage = null;
 		return msg;
 	}
 
+	/**
+	 * Handle animations
+	 */
 	public void tick() {
 		if (displayedMessage > -1) {
 			displayTicks++;
@@ -58,6 +85,11 @@ public class Chat implements KeyListener {
 		}
 	}
 
+	/**
+	 * Render the messages onto the given screen
+	 * 
+	 * @param screen Screen
+	 */
 	public void render(Screen screen) {
 		int xOffset = 5;
 		int yOffset = 312;
