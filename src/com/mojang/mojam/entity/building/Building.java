@@ -9,7 +9,6 @@ import com.mojang.mojam.entity.Player;
 import com.mojang.mojam.entity.mob.Mob;
 import com.mojang.mojam.gui.Font;
 import com.mojang.mojam.gui.Notifications;
-import com.mojang.mojam.gui.Font.FontName;
 import com.mojang.mojam.math.BB;
 import com.mojang.mojam.network.TurnSynchronizer;
 import com.mojang.mojam.screen.Art;
@@ -43,11 +42,9 @@ public class Building extends Mob implements IUsable {
 	 *            Initial Y coordinate
 	 * @param team
 	 *            Team number
-	 * @param localTeam
-	 *            Local team number
 	 */
-	public Building(double x, double y, int team, int localTeam) {
-		super(x, y, team, localTeam);
+	public Building(double x, double y, int team) {
+		super(x, y, team);
 
 		setStartHealth(20);
 		healthRegen = false;
@@ -60,7 +57,7 @@ public class Building extends Mob implements IUsable {
 	public void render(Screen screen) {
 		super.render(screen);
 		renderMarker(screen);
-		if(team == localTeam)
+		if(team == MojamComponent.localTeam)
 			renderInfo(screen);
 	}
 
@@ -99,24 +96,37 @@ public class Building extends Mob implements IUsable {
 	 *            Screen
 	 */
 	protected void renderInfo(Screen screen) {
-		// Draw iiAtlas' shop item info graphics
+		// Draw iiAtlas' shop item info graphics, thanks whoever re-wrote this!
 		if (highlight) {
 		    if (this instanceof ShopItem) {
 		        ShopItem s = (ShopItem)this;
 		        Bitmap image = getSprite();
 		        int teamYOffset = (team == 2) ? 90 : 0;
-		        screen.blit(Art.tooltipBackground,
-                        (int)(pos.x - image.w / 2 - 10),
-                        (int)(pos.y + 20 - teamYOffset), 110, 25);
 		        
 		        String[] tooltip = s.getTooltip();
-		        Font f = Font.getFont(FontName.SM_GOLD);
+		        int h = tooltip.length*(Font.FONT_GOLD_SMALL.getFontHeight()+3);
+		        int w = getLongestWidth(tooltip, Font.FONT_WHITE_SMALL)+4;
+		        
+		        Font f = Font.FONT_GOLD_SMALL;
+		        screen.blit(Bitmap.tooltipBitmap(w, h),
+                        (int)(pos.x - image.w / 2 - 10),
+                        (int)(pos.y + 20 - teamYOffset), w, h);
+
 		        for (int i=0; i<tooltip.length; i++) {
-		            f.drawFont(screen, tooltip[i], (int)(pos.x - image.w + 8), (int)pos.y + 22 - teamYOffset + (i==0?0:1) + i*(f.getFontStringHeight()+1));
-		            f = Font.getFont(FontName.SM_WHITE);
+		            f.draw(screen, tooltip[i], (int)(pos.x - image.w + 8), (int)pos.y + 22 - teamYOffset + (i==0?0:1) + i*(f.getFontHeight()+2));
+		            f = Font.FONT_WHITE_SMALL;
 		        }
 		    }
 		}
+	}
+	
+	private int getLongestWidth(String[] string, Font font) {
+		int res = 0;
+		for ( String s : string ) {
+			int w = font.calculateStringWidth(s.trim());
+			res = w > res ? w : res;
+		}
+		return res;
 	}
 
 	@Override
@@ -202,7 +212,7 @@ public class Building extends Mob implements IUsable {
 		if (upgradeLevel >= maxUpgradeLevel) {
 			MojamComponent.soundPlayer.playSound("/sound/Fail.wav",
 					(float) pos.x, (float) pos.y, true);
-			if (this.team == this.localTeam) {
+			if (this.team == MojamComponent.localTeam) {
 				Notifications.getInstance().add(
 						MojamComponent.texts.getStatic("upgrade.full"));
 			}
@@ -213,7 +223,7 @@ public class Building extends Mob implements IUsable {
 		if (cost > p.getScore() && !Options.getAsBoolean(Options.CREATIVE)) {
 			MojamComponent.soundPlayer.playSound("/sound/Fail.wav",
 					(float) pos.x, (float) pos.y, true);
-			if (this.team == this.localTeam) {
+			if (this.team == MojamComponent.localTeam) {
 				Notifications.getInstance().add(
 						MojamComponent.texts.upgradeNotEnoughMoney(cost));
 			}
@@ -227,7 +237,7 @@ public class Building extends Mob implements IUsable {
 		p.useMoney(cost);
 		upgradeComplete();
 
-		if (this.team == this.localTeam) {
+		if (this.team == MojamComponent.localTeam) {
 			Notifications.getInstance().add(
 					MojamComponent.texts.upgradeTo(upgradeLevel + 1));
 		}
@@ -265,6 +275,7 @@ public class Building extends Mob implements IUsable {
 	@Override
 	public void setHighlighted(boolean hl) {
 		highlight = hl;
+		justDroppedTicks = 80;
 	}
 
 	@Override

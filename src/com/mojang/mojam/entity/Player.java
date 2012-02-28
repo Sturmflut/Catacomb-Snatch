@@ -36,7 +36,6 @@ public class Player extends Mob implements LootCollector {
     public static int COST_REMOVE_RAIL;
     public static final int REGEN_INTERVAL = 60 * 3;
     public int plevel;
-    public int pnextlevel;
     public double pexp;
     public double psprint;
     public boolean isSprint = false;
@@ -85,10 +84,9 @@ public class Player extends Mob implements LootCollector {
      * @param x Initial x coordinate
      * @param y Initial y coordinate
      * @param team Team number
-     * @param localTeam Local team number
      */
-    public Player(Keys keys, MouseButtons mouseButtons, int x, int y, int team, int localTeam, int characterID) {
-        super(x, y, team, localTeam);
+    public Player(Keys keys, MouseButtons mouseButtons, int x, int y, int team,  int characterID) {
+        super(x, y, team);
         this.keys = keys;
         this.mouseButtons = mouseButtons;
         this.characterID = characterID;
@@ -96,7 +94,7 @@ public class Player extends Mob implements LootCollector {
         startX = x;
         startY = y;
 
-        plevel = 1;
+        plevel = 0; // will be displayed in GUI as lev 1
         pexp = 0;
         maxHealth = 5;
         health = 5;
@@ -131,7 +129,7 @@ public class Player extends Mob implements LootCollector {
      * Check if the player has reached enough XP for a levelup
      */
     private void handleLevelUp() {
-        if (pexp >= nextLevel()) {
+        if (xpSinceLastLevelUp() >= nettoXpNeededForLevel(plevel+1)) {
             this.maxHealth++;
             this.regenDelay = 2;
             plevel++;
@@ -143,27 +141,34 @@ public class Player extends Mob implements LootCollector {
     }
 
     /**
-     * Calculate how much XP is needed to reach the next level
      * 
-     * @return XP value
+     * @param level to calculate summed up xp value for
+     *
+     * @return summed up xp value
      */
-    private double nextLevel() {
-        double next = (plevel * 7) * (plevel * 7);
-        pnextlevel = (int) next;
-        return next;
+    public double summedUpXpNeededForLevel(int level){
+        return (level * 7) * (level * 7);
     }
-
+    
     /**
-     * Calculate how much XP is missing to reach the next level
      * 
-     * @return Missing XP value
+     * @param level to calculate netto xp value for
+     *
+     * @return netto xp value
      */
-    public double getNextLevel() {
-        double next = nextLevel() - pexp;
-        return next;
+    public double nettoXpNeededForLevel(int level){
+        if (level == 0) return 0;
+        return summedUpXpNeededForLevel(level) - summedUpXpNeededForLevel(level-1);
     }
-
-
+    
+    /**
+     * 
+     * @return xp gained since last level up
+     */
+    public double xpSinceLastLevelUp(){
+        return pexp - summedUpXpNeededForLevel(plevel);
+    }
+    
     @Override
     public void tick() {
 
@@ -187,6 +192,8 @@ public class Player extends Mob implements LootCollector {
 
         double xa = 0;
         double ya = 0;
+        double xaShot = 0;
+        double yaShot = 0;
 
         // Handle keys
         if (!dead) {
@@ -202,11 +209,32 @@ public class Player extends Mob implements LootCollector {
             if (keys.right.isDown) {
                 xa++;
             }
+            if (keys.right.isDown) {
+                xa++;
+            }
+            if (keys.fireUp.isDown) {
+                yaShot--;
+            }
+            if (keys.fireDown.isDown) {
+                yaShot++;
+            }
+            if (keys.fireLeft.isDown) {
+                xaShot--;
+            }
+            if (keys.fireRight.isDown) {
+                xaShot++;
+            }
         }
 
         // Handle mouse aiming
         if (!mouseAiming && !keys.fire.isDown && !mouseButtons.isDown(mouseFireButton) && xa * xa + ya * ya != 0) {
             aimVector.set(xa, ya);
+            aimVector.normalizeSelf();
+            updateFacing();
+        }
+        
+        if (!mouseAiming && fireKeyIsDown() && xaShot * xaShot + yaShot * yaShot != 0) {
+            aimVector.set(xaShot, yaShot);
             aimVector.normalizeSelf();
             updateFacing();
         }
@@ -410,7 +438,7 @@ public class Player extends Mob implements LootCollector {
         weapon.weapontick();
         
         if (!dead
-                && (carrying == null && keys.fire.isDown
+                && (carrying == null && fireKeyIsDown()
                 || carrying == null && mouseButtons.isDown(mouseFireButton))) {
             wasShooting = true;
             if (takeDelay > 0) {
@@ -428,6 +456,14 @@ public class Player extends Mob implements LootCollector {
             takeDelay = 15;
         }
     }
+    
+    /**
+     * Returns true if one of the keyboard fire buttons is down
+     * @return
+     */
+    private boolean fireKeyIsDown() {
+        return keys.fire.isDown || keys.fireUp.isDown || keys.fireDown.isDown || keys.fireRight.isDown || keys.fireLeft.isDown;
+    }
 
     /**
      * Handle rail building
@@ -443,7 +479,7 @@ public class Player extends Mob implements LootCollector {
                 level.placeTile(x, y, new RailTile(level.getTile(x, y)), this);
                 payCost(COST_RAIL);
             } else if (score < COST_RAIL) {
-            	if(this.team == this.localTeam) {
+            	if(this.team == MojamComponent.localTeam) {
             		  Notifications.getInstance().add(MojamComponent.texts.buildRail(COST_RAIL));
             	}
               
@@ -451,10 +487,10 @@ public class Player extends Mob implements LootCollector {
         } else if (level.getTile(x, y) instanceof RailTile) {
             if ((y < 8 && team == Team.Team2) || (y > level.height - 9 && team == Team.Team1)) {
                 if (score >= COST_DROID) {
-                    level.addEntity(new RailDroid(pos.x, pos.y, team, localTeam));
+                    level.addEntity(new RailDroid(pos.x, pos.y, team));
                     payCost(COST_DROID);
                 } else {
-                	if(this.team == this.localTeam) {
+                	if(this.team == MojamComponent.localTeam) {
                 		Notifications.getInstance().add(MojamComponent.texts.buildDroid(COST_DROID));
                 	}
                 }
@@ -466,7 +502,7 @@ public class Player extends Mob implements LootCollector {
                         payCost(COST_REMOVE_RAIL);
                     }
                 } else if (score < COST_REMOVE_RAIL) {
-                	if(this.team == this.localTeam) {
+                	if(this.team == MojamComponent.localTeam) {
                 		Notifications.getInstance().add(MojamComponent.texts.removeRail(COST_REMOVE_RAIL));
                 	}
                 }
@@ -628,13 +664,13 @@ public class Player extends Mob implements LootCollector {
     
     @Override
     protected void renderCarrying(Screen screen, int yOffs) {
-    	if(carrying != null && carrying.team == this.localTeam ) {
+    	if(carrying != null && carrying.team == MojamComponent.localTeam ) {
 			if(carrying instanceof Turret) {
 				Turret turret = (Turret)carrying;
-				screen.blit(turret.areaBitmap, turret.pos.x-turret.radius , turret.pos.y-turret.radius - yOffs);	
+				turret.drawRadius(screen);	
 			} else if(carrying instanceof Harvester) {
 				Harvester harvester = (Harvester)carrying;
-				screen.blit(harvester.areaBitmap, harvester.pos.x-harvester.radius , harvester.pos.y-harvester.radius - yOffs);	
+				harvester.drawRadius(screen);	
 			}//TODO make an interface to clean this up
        	}
 		
@@ -703,7 +739,7 @@ public class Player extends Mob implements LootCollector {
     public void pickup(Building b) {
         if(b.team != this.team && b.team != Team.Neutral) {
 
-            if(this.team == localTeam) {
+            if(this.team == MojamComponent.localTeam) {
                 Notifications.getInstance().add(MojamComponent.texts.getStatic("gameplay.cantPickup"));
             }
             return;
@@ -824,11 +860,4 @@ public class Player extends Mob implements LootCollector {
         return pos;
     }
 
-    /**
-     * Set local team number
-     * @param localTeam Local team number
-     */
-	public void setLocalTeam(int localTeam) {
-		this.localTeam = localTeam;
-	}
 }

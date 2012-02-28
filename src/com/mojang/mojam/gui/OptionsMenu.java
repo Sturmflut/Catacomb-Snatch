@@ -16,18 +16,21 @@ public class OptionsMenu extends GuiMenu {
 	private float soundsVolume;
 	private float volume;
 	private boolean creative;
+    private boolean inGame;
+    private int gameWidth;
+    private int gameHeight;
 
 	private int textY;
 
 	private ClickableComponent back;
 
-	private int selectedItem;
-
 	public OptionsMenu(boolean inGame) {
 		loadOptions();
+		
+		this.inGame = inGame;
 
-		int gameWidth = MojamComponent.GAME_WIDTH;
-		int gameHeight = MojamComponent.GAME_HEIGHT;
+		gameWidth = MojamComponent.GAME_WIDTH;
+		gameHeight = MojamComponent.GAME_HEIGHT;
 		int offset = 32;
 		int xOffset = (gameWidth - Button.BUTTON_WIDTH) / 2;
 		int yOffset = (gameHeight - (7 * offset + 20 + (offset * 2))) / 2;
@@ -143,9 +146,16 @@ public class OptionsMenu extends GuiMenu {
 
 	@Override
 	public void render(Screen screen) {
-		screen.blit(Art.background, 0, 0);
+	    
+	    if( ! inGame) {
+	        screen.blit(Art.background, 0, 0);
+	    } else {
+	        screen.opacityFill(0, 0, gameWidth, gameHeight, 0xff000000, 0x30);
+	    }
+		
+		
 		super.render(screen);
-		Font.drawCentered(screen, MojamComponent.texts.getStatic("titlemenu.options"),
+		Font.defaultFont().drawCentered(screen, MojamComponent.texts.getStatic("titlemenu.options"),
 				MojamComponent.GAME_WIDTH / 2, textY);
 		screen.blit(Art.getLocalPlayerArt()[0][6], buttons.get(selectedItem).getX() - 40, buttons
 				.get(selectedItem).getY() - 8);
@@ -161,51 +171,9 @@ public class OptionsMenu extends GuiMenu {
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			back.postClick();
-		} else if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
-			selectedItem--;
-			if (selectedItem < 0) {
-				selectedItem = buttons.size() - 1;
-			}
-		} else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
-			selectedItem++;
-			if (selectedItem >= buttons.size()) {
-				selectedItem = 0;
-			}
-		} else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
-			ClickableComponent button = buttons.get(selectedItem);
-			if (button instanceof Slider) {
-				Slider slider = (Slider) button;
-				float value = slider.value - 0.1f;
-				if (value < 0) {
-					value = 0;
-				}
-				slider.setValue(value);
-				slider.postClick();
-			}
-		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
-			ClickableComponent button = buttons.get(selectedItem);
-			if (button instanceof Slider) {
-				Slider slider = (Slider) button;
-				float value = slider.value + 0.1f;
-				if (value > 1) {
-					value = 1;
-				}
-				slider.setValue(value);
-				slider.postClick();
-			}
-		} else if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_E) {
-			e.consume();
-			ClickableComponent button = buttons.get(selectedItem);
-			if (button instanceof Slider) {
-				Slider slider = (Slider) button;
-				if (slider.value == 1) {
-					slider.setValue(0);
-				} else {
-					slider.setValue(1);
-				}
-			}
-			button.postClick();
-		}
+		} else {
+			super.keyPressed(e);
+		}		
 	}
 
 	@Override
