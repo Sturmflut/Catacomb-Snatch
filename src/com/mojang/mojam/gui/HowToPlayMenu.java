@@ -32,7 +32,7 @@ public class HowToPlayMenu extends GuiMenu {
 	    if( ! inGame) {
 	        screen.blit(Art.background, 0, 0);
 	    } else {
-            screen.opacityFill(0, 0, MojamComponent.GAME_WIDTH, MojamComponent.GAME_HEIGHT, 0xff000000, 0x30);
+            screen.alphaFill(0, 0, MojamComponent.GAME_WIDTH, MojamComponent.GAME_HEIGHT, 0xff000000, 0x30);
 	    }
 		
 		
@@ -44,11 +44,11 @@ public class HowToPlayMenu extends GuiMenu {
 
 		// Game goal
 		Font font = Font.defaultFont();
-		font.drawCentered(screen, MojamComponent.texts.getStatic("help.goal") + ":", goalX, goalTopMargin);
-		font.drawCentered(screen, MojamComponent.texts.getStatic("help.help1"), goalX, goalTopMargin+10);
-		font.drawCentered(screen, MojamComponent.texts.getStatic("help.help2"), goalX, goalTopMargin+20);
-		font.drawCentered(screen, MojamComponent.texts.getStatic("help.help3"), goalX, goalTopMargin+30);
-		font.drawCentered(screen, MojamComponent.texts.getStatic("help.help4"), goalX, goalTopMargin+40);
+		font.draw(screen, MojamComponent.texts.getStatic("help.goal") + ":", goalX, goalTopMargin, Font.Align.CENTERED);
+		font.draw(screen, MojamComponent.texts.getStatic("help.help1"), goalX, goalTopMargin+10, Font.Align.CENTERED);
+		font.draw(screen, MojamComponent.texts.getStatic("help.help2"), goalX, goalTopMargin+20, Font.Align.CENTERED);
+		font.draw(screen, MojamComponent.texts.getStatic("help.help3"), goalX, goalTopMargin+30, Font.Align.CENTERED);
+		font.draw(screen, MojamComponent.texts.getStatic("help.help4"), goalX, goalTopMargin+40, Font.Align.CENTERED);
 		
 		// Turret
 		int line = 102;
@@ -56,8 +56,9 @@ public class HowToPlayMenu extends GuiMenu {
 		screen.blit(Art.turret2[7][0], imgTab-30, line);
 		screen.blit(Art.turret3[7][0], imgTab, line);
 		font.draw(screen, MojamComponent.texts.getStatic("help.turret"), tab1, line);
-		screen.blit(Art.pickupCoinGold[0][0], tab1, line+10);
-		font.draw(screen, "150", tab1+20, line+15);
+		screen.blit(Art.pickupGemEmerald[0][0], tab1, line+10);
+		screen.blit(Art.pickupCoinGold[0][0], tab1+15, line+10);
+		font.draw(screen, "150", tab1+35, line+15);
 		font.draw(screen, MojamComponent.texts.getStatic("help.turret1"), tab2, line);
 		font.draw(screen, MojamComponent.texts.getStatic("help.turret2"), tab2, line+10);
 		font.draw(screen, MojamComponent.texts.getStatic("help.turret3"), tab2, line+20);
@@ -68,8 +69,9 @@ public class HowToPlayMenu extends GuiMenu {
 		screen.blit(Art.harvester2[7][0], imgTab-30, line-10);
 		screen.blit(Art.harvester3[7][0], imgTab, line-10);
 		font.draw(screen, MojamComponent.texts.getStatic("help.collector"), tab1, line);
-		screen.blit(Art.pickupCoinGold[0][0], tab1, line+10);
-		font.draw(screen, "300", tab1+20, line+15);
+		screen.blit(Art.pickupGemEmerald[0][0], tab1, line+10);
+		screen.blit(Art.pickupGemRuby[0][0], tab1+15, line+10);
+		font.draw(screen, "300", tab1+35, line+15);
 		font.draw(screen, MojamComponent.texts.getStatic("help.collector1"), tab2, line);
 		font.draw(screen, MojamComponent.texts.getStatic("help.collector2"), tab2, line+10);
 		font.draw(screen, MojamComponent.texts.getStatic("help.collector3"), tab2, line+20);
@@ -78,18 +80,18 @@ public class HowToPlayMenu extends GuiMenu {
 		line += vspace;
 		screen.blit(Art.bomb, imgTab, line);
 		font.draw(screen, MojamComponent.texts.getStatic("help.bomb"), tab1, line);
-		screen.blit(Art.pickupCoinGold[0][0], tab1, line+10);
-		font.draw(screen, "500", tab1+20, line+15);
+		screen.blit(Art.pickupGemDiamond[3][0], tab1, line+10);
+		font.draw(screen, "500", tab1+30, line+15);
 		font.draw(screen, MojamComponent.texts.getStatic("help.bomb1"), tab2, line);
 		font.draw(screen, MojamComponent.texts.getStatic("help.bomb2"), tab2, line+10);
 		font.draw(screen, MojamComponent.texts.getStatic("help.bomb3"), tab2, line+20);
-
+		
+		// Rail
 		line += vspace;
 		screen.blit(Art.rails[1][0], imgTab, line);
 		font.draw(screen, MojamComponent.texts.getStatic("help.rails"), tab1, line);
-		screen.blit(Art.pickupCoinGold[0][0], tab1, line+10);
-		font.draw(screen, "10 (+)", tab1+20, line+15);
-		font.draw(screen, "15 (-)", tab1+20, line+25);
+		screen.blit(Art.pickupCoinBronze[0][0], tab1+10, line+15);
+		font.draw(screen, "10", tab1+30, line+20);
 		font.draw(screen, MojamComponent.texts.getStatic("help.rails1"), tab2, line);
 		font.draw(screen, MojamComponent.texts.getStatic("help.rails2"), tab2, line+10);
 		font.draw(screen, MojamComponent.texts.getStatic("help.rails3"), tab2, line+20);

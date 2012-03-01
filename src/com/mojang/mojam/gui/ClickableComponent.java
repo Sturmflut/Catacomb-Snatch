@@ -63,7 +63,7 @@ public abstract class ClickableComponent extends VisibleComponent {
 	 * Adds a listener to the internal list, to get called when this component
 	 * has been clicked
 	 * 
-	 * @param listener
+	 * @param listener Button listener
 	 */
 	public void addListener(ButtonListener listener) {
 		if (listeners == null) {
@@ -75,7 +75,7 @@ public abstract class ClickableComponent extends VisibleComponent {
 	/**
 	 * Triggered when clicked
 	 * 
-	 * @param mouseButtons
+	 * @param mouseButtons Mouse button state
 	 */
 	protected abstract void clicked(MouseButtons mouseButtons);
 

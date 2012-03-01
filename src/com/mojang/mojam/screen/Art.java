@@ -14,6 +14,7 @@ import com.mojang.mojam.MojamComponent;
  */
 public class Art {
 	
+	public static final int NO_OPPONENT = -1;
 	public static final int LORD_LARD = 0;
 	public static final int HERR_VON_SPECK = 1;
 	public static final int DUCHESS_DONUT = 2;
@@ -21,15 +22,22 @@ public class Art {
 	public static final int NUM_CHARACTERS = 4;
 	
 	public static Bitmap[][] floorTiles = cut("/art/map/floortiles.png", 32, 32);
+	public static Bitmap shadow_north = load("/art/shadows/shadow_north.png");
+	public static Bitmap shadow_north_east = load("/art/shadows/shadow_north_east.png");
+	public static Bitmap shadow_north_west = load("/art/shadows/shadow_north_west.png");
+    public static Bitmap shadow_east = load("/art/shadows/shadow_east.png");
+	public static Bitmap shadow_west = load("/art/shadows/shadow_west.png");
 	public static int[][] floorTileColors = getColors(floorTiles);
-	public static Bitmap[][] wallTiles = cut("/art/map/floortiles.png", 32, 56, 0, 104);
+	public static Bitmap[][] wallTiles = cut("/art/map/walltiles.png", 32, 56, 0, 0);
 	public static int[][] wallTileColors = getColors(wallTiles);
 	public static Bitmap[][] treasureTiles = cut("/art/map/treasure.png", 32, 56);
+	public static int treasureTileColor = getColor(treasureTiles[0][0]);
 	public static Bitmap[][] mobSpawner = cut("/art/map/spawner.png", 32, 40);
+	public static Bitmap mobSpawnerShadow = load("/art/shadows/shadow_spawner.png");
 	public static Bitmap[][] darkness = cut("/art/map/dark.png", 32, 32);
 	public static Bitmap[][] mapIcons = cut("/art/map/mapicons.png", 5, 5);
-	public static Bitmap shadow = load("/art/map/shadow.png");
-    public static Bitmap[][] rails = cut("/art/map/rails.png", 32, 38);
+	public static Bitmap shadow = load("/art/shadows/shadow_coin.png");
+	public static Bitmap[][] rails = cut("/art/map/rails.png", 32, 38);
     public static Bitmap[][] spikes = cut("/art/map/spike_trap_eglerion_32.png", 32, 32);
 
     // Player sheets
@@ -40,6 +48,8 @@ public class Art {
 	
 	public static Bitmap[][] getPlayer(int characterID) {
 		switch (characterID) {
+		case NO_OPPONENT:
+			return null;
 		case LORD_LARD:
 			return lordLard;
 		case HERR_VON_SPECK:
@@ -62,9 +72,12 @@ public class Art {
 	private static Bitmap[][] startHerrSpeck = cut("/art/player/start_herrspeck.png", 32, 32);
 	private static Bitmap[][] startDuchessDonut = startLordLard;
 	private static Bitmap[][] startCountessCruller = cut("/art/player/start_cruller.png", 32, 32);
+	private static Bitmap[][] startNoOpponent = cut("/art/player/start_no_opponent.png", 32, 32);
 	
 	public static Bitmap[][] getPlayerBase(int characterID) {
 		switch (characterID) {
+		case NO_OPPONENT:
+			return startNoOpponent;
 		case LORD_LARD:
 			return startLordLard;
 		case HERR_VON_SPECK:
@@ -130,7 +143,7 @@ public class Art {
 	public static Bitmap[][] snake = cut("/art/mob/enemy_snake_anim_48.png", 48, 48);
 	public static Bitmap[][] scarab = cut("/art/mob/enemy_scarab_anim_48.png", 48, 48);
 	public static Bitmap[][] bat = cut("/art/mob/enemy_bat_32.png", 32, 32);
-	public static Bitmap batShadow = load("/art/mob/shadow.png");
+	public static Bitmap batShadow = load("/art/shadows/shadow_bat.png");
 
 	// Coins
 	public static Bitmap[][] pickupCoinBronzeSmall = cut("/art/pickup/pickup_coin_bronze_small_8.png", 8, 8);
