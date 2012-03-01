@@ -156,6 +156,15 @@ public class Font {
     
     protected FontCharacterFactory fontCharacterFactory;
 
+    /**
+     * Constructor
+     * 
+     * @param bitmapData Bitmap data containing the glyphs
+     * @param letters List of glyphs present in the font
+     * @param glyphHeight Glyph height
+     * @param letterSpacing Spacing between letters
+     * @param characterFactory Character factory
+     */
     protected Font(Bitmap[][] bitmapData, String letters, int glyphHeight, int letterSpacing, FontCharacterFactory characterFactory) {
         this.bitmapData = bitmapData;
         this.letters = letters;
@@ -165,9 +174,9 @@ public class Font {
     }
     
     /**
-     * The width of the given string if drawn in this font
+     * The width of the given text if drawn in this font
      * 
-     * @param text
+     * @param text Text
      */
     public int calculateStringWidth(String text) {
         int w = 0;
@@ -243,10 +252,10 @@ public class Font {
      * 
      * Will never be split into several lines of text
      * 
-     * @param screen 
-     * @param msg 
-     * @param x 
-     * @param y 
+     * @param screen Screen
+     * @param msg Message
+     * @param x X coordinate of the center
+     * @param y Y coordinate of the center
      */
     public void drawCentered(Screen screen, String msg, int x, int y) {
         int width = calculateStringWidth(msg);
